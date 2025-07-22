@@ -1,0 +1,288 @@
+-- Create Products Table
+CREATE TABLE Products (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(500),
+    Price DECIMAL(18,2) NOT NULL,
+    SKU NVARCHAR(50) NOT NULL UNIQUE,
+    Status NVARCHAR(50) NOT NULL, -- e.g., Active, Inactive, Discontinued
+    Images VARBINARY(MAX), -- Binary data for images
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    UpdatedAt DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+-- Create Categories Table
+CREATE TABLE Categories (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    ParentId INT NULL,
+    FOREIGN KEY (ParentId) REFERENCES Categories(Id)
+);
+
+-- Create ProductCategories Table (New)
+CREATE TABLE ProductCategories (
+    ProductId INT NOT NULL,
+    CategoryId INT NOT NULL,
+    PRIMARY KEY (ProductId, CategoryId),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id),
+    FOREIGN KEY (CategoryId) REFERENCES Categories(Id)
+);
+
+-- Create ProductVariants Table
+CREATE TABLE ProductVariants (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    ProductId INT NOT NULL,
+    Size NVARCHAR(50),
+    Color NVARCHAR(50),
+    Price DECIMAL(18,2) NOT NULL,
+    Stock INT NOT NULL,
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);
+
+-- Create Warehouses Table
+CREATE TABLE Warehouses (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Location NVARCHAR(100) NOT NULL,
+    Manager NVARCHAR(100),
+    Capacity INT NOT NULL
+);
+
+-- Create Inventories Table (Updated)
+CREATE TABLE Inventories (
+    ProductId INT NOT NULL,
+    VariantId INT NULL,
+    Quantity INT NOT NULL,
+    WarehouseId INT NOT NULL,
+    PRIMARY KEY (ProductId, VariantId, WarehouseId),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id),
+    FOREIGN KEY (VariantId) REFERENCES ProductVariants(Id),
+    FOREIGN KEY (WarehouseId) REFERENCES Warehouses(Id)
+);
+
+-- Create Users Table
+CREATE TABLE Users (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(100) NOT NULL UNIQUE,
+    PasswordHash NVARCHAR(256) NOT NULL,
+    Phone NVARCHAR(20),
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE()
+);
+
+-- Create Carts Table
+CREATE TABLE Carts (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NULL,
+    SessionId NVARCHAR(100) NOT NULL,
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+-- Create CartItems Table
+CREATE TABLE CartItems (
+    CartId INT NOT NULL,
+    ProductVariantId INT NOT NULL,
+    Quantity INT NOT NULL,
+    PriceAtTime DECIMAL(18,2) NOT NULL,
+    PRIMARY KEY (CartId, ProductVariantId),
+    FOREIGN KEY (CartId) REFERENCES Carts(Id),
+    FOREIGN KEY (ProductVariantId) REFERENCES ProductVariants(Id)
+);
+
+-- Create Orders Table
+CREATE TABLE Orders (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL,
+    TotalAmount DECIMAL(18,2) NOT NULL,
+    Status NVARCHAR(50) NOT NULL, -- e.g., Pending, Paid, Shipped
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+-- Create OrderItems Table
+CREATE TABLE OrderItems (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    OrderId INT NOT NULL,
+    ProductVariantId INT NOT NULL,
+    Quantity INT NOT NULL,
+    PriceAtTime DECIMAL(18,2) NOT NULL,
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id),
+    FOREIGN KEY (ProductVariantId) REFERENCES ProductVariants(Id)
+);
+
+-- Create Payments Table
+CREATE TABLE Payments (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    OrderId INT NOT NULL,
+    Amount DECIMAL(18,2) NOT NULL,
+    Method NVARCHAR(50) NOT NULL, -- e.g., CreditCard, PayPal
+    Status NVARCHAR(50) NOT NULL, -- e.g., Pending, Completed, Failed
+    TransactionId NVARCHAR(100),
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id)
+);
+
+-- Create Addresses Table
+CREATE TABLE Addresses (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL,
+    Street NVARCHAR(200) NOT NULL,
+    City NVARCHAR(100) NOT NULL,
+    State NVARCHAR(100),
+    Zip NVARCHAR(20) NOT NULL,
+    Country NVARCHAR(100) NOT NULL,
+    IsDefault BIT NOT NULL DEFAULT 0,
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+-- Create ShippingMethods Table
+CREATE TABLE ShippingMethods (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(100) NOT NULL,
+    Cost DECIMAL(18,2) NOT NULL,
+    EstimatedTime NVARCHAR(50) NOT NULL, -- e.g., 3-5 days
+    AvailabilityRegion NVARCHAR(100) NOT NULL
+);
+
+-- Create ShippingInfo Table (Updated)
+CREATE TABLE ShippingInfo (
+    OrderId INT PRIMARY KEY,
+    AddressId INT NOT NULL,
+    ShippingMethodId INT NOT NULL,
+    TrackingNumber NVARCHAR(100),
+    Status NVARCHAR(50) NOT NULL, -- e.g., Processing, Shipped, Delivered
+    FOREIGN KEY (OrderId) REFERENCES Orders(Id),
+    FOREIGN KEY (AddressId) REFERENCES Addresses(Id),
+    FOREIGN KEY (ShippingMethodId) REFERENCES ShippingMethods(Id)
+);
+
+-- Create Reviews Table
+CREATE TABLE Reviews (
+    ProductId INT NOT NULL,
+    UserId INT NOT NULL,
+    Rating INT NOT NULL CHECK (Rating BETWEEN 1 AND 5),
+    Comment NVARCHAR(500),
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    PRIMARY KEY (ProductId, UserId),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id),
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+-- Create Roles Table
+CREATE TABLE Roles (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Name NVARCHAR(50) NOT NULL UNIQUE -- e.g., Admin, Customer, Manager
+);
+
+-- Create UserRoles Table
+CREATE TABLE UserRoles (
+    UserId INT NOT NULL,
+    RoleId INT NOT NULL,
+    PRIMARY KEY (UserId, RoleId),
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (RoleId) REFERENCES Roles(Id)
+);
+
+-- Create Permissions Table
+CREATE TABLE Permissions (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Action NVARCHAR(50) NOT NULL,
+    Resource NVARCHAR(50) NOT NULL,
+    UNIQUE (Action, Resource)
+);
+
+-- Create RolePermissions Table
+CREATE TABLE RolePermissions (
+    RoleId INT NOT NULL,
+    PermissionId INT NOT NULL,
+    PRIMARY KEY (RoleId, PermissionId),
+    FOREIGN KEY (RoleId) REFERENCES Roles(Id),
+    FOREIGN KEY (PermissionId) REFERENCES Permissions(Id)
+);
+
+-- Create AdminLogs Table
+CREATE TABLE AdminLogs (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL,
+    Action NVARCHAR(100) NOT NULL, -- e.g., Created Product, Updated Order
+    Entity NVARCHAR(50) NOT NULL, -- e.g., Product, Order
+    EntityId INT NOT NULL,
+    Timestamp DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+-- Create StockMovements Table
+CREATE TABLE StockMovements (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    ProductVariantId INT NOT NULL,
+    FromWarehouseId INT NULL,
+    ToWarehouseId INT NULL,
+    Quantity INT NOT NULL,
+    Reason NVARCHAR(100) NOT NULL, -- e.g., Restock, Transfer, Return
+    Timestamp DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (ProductVariantId) REFERENCES ProductVariants(Id),
+    FOREIGN KEY (FromWarehouseId) REFERENCES Warehouses(Id),
+    FOREIGN KEY (ToWarehouseId) REFERENCES Warehouses(Id)
+);
+
+-- Create Discounts Table (Updated)
+CREATE TABLE Discounts (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Code NVARCHAR(50) NOT NULL UNIQUE,
+    DiscountType NVARCHAR(50) NOT NULL, -- e.g., Percentage, Fixed
+    Value DECIMAL(18,2) NOT NULL,
+    Expiration DATETIME NULL,
+    UsageLimit INT NULL,
+    ApplicableProductId INT NULL,
+    ApplicableCategoryId INT NULL,
+    FOREIGN KEY (ApplicableProductId) REFERENCES Products(Id),
+    FOREIGN KEY (ApplicableCategoryId) REFERENCES Categories(Id)
+);
+
+-- Create TaxRules Table
+CREATE TABLE TaxRules (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    Region NVARCHAR(100) NOT NULL,
+    Rate DECIMAL(5,2) NOT NULL,
+    Type NVARCHAR(50) NOT NULL -- e.g., SalesTax, VAT
+);
+
+-- Create Wishlists Table
+CREATE TABLE Wishlists (
+    UserId INT NOT NULL,
+    ProductId INT NOT NULL,
+    PRIMARY KEY (UserId, ProductId),
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (ProductId) REFERENCES Products(Id)
+);
+
+-- Create Notifications Table
+CREATE TABLE Notifications (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL,
+    Type NVARCHAR(50) NOT NULL, -- e.g., OrderConfirmation, ShippingUpdate
+    Message NVARCHAR(500) NOT NULL,
+    Status NVARCHAR(50) NOT NULL, -- e.g., Pending, Sent, Failed
+    CreatedAt DATETIME NOT NULL DEFAULT GETDATE(),
+    FOREIGN KEY (UserId) REFERENCES Users(Id)
+);
+
+-- Create ReturnRequests Table
+CREATE TABLE ReturnRequests (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    OrderItemId INT NOT NULL,
+    Reason NVARCHAR(500) NOT NULL,
+    Status NVARCHAR(50) NOT NULL, -- e.g., Requested, Approved, Denied
+    ResolutionType NVARCHAR(50) NOT NULL, -- e.g., Refund, Replacement
+    FOREIGN KEY (OrderItemId) REFERENCES OrderItems(Id)
+);
+
+-- Create CustomerSupportTickets Table
+CREATE TABLE CustomerSupportTickets (
+    Id INT PRIMARY KEY IDENTITY(1,1),
+    UserId INT NOT NULL,
+    Subject NVARCHAR(100) NOT NULL,
+    Description NVARCHAR(500) NOT NULL,
+    Status NVARCHAR(50) NOT NULL, -- e.g., Open, InProgress, Resolved
+    AssignedAdminId INT NULL,
+    FOREIGN KEY (UserId) REFERENCES Users(Id),
+    FOREIGN KEY (AssignedAdminId) REFERENCES Users(Id)
+);
