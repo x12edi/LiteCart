@@ -5,7 +5,7 @@ using System.Data;
 
 namespace ECommerce.Infrastructure.Repositories
 {
-    public class ProductCategoriesRepository : IRepository<ProductCategories>
+    public class ProductCategoriesRepository : IProductCategoriesRepository
     {
         private readonly string _connectionString;
 
@@ -18,7 +18,7 @@ namespace ECommerce.Infrastructure.Repositories
         {
             throw new NotSupportedException("GetById is not supported for ProductCategories. Use GetByProductAndCategoryId instead.");
         }
-
+        
         public async Task<ProductCategories> GetByProductAndCategoryIdAsync(int productId, int categoryId)
         {
             using var connection = new SqlConnection(_connectionString);
@@ -91,6 +91,49 @@ namespace ECommerce.Infrastructure.Repositories
             command.Parameters.AddWithValue("@CategoryId", categoryId);
 
             await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task DeleteByCategoryIdAsync(int categoryId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var command = new SqlCommand(
+                "DELETE FROM ProductCategories WHERE CategoryId = @CategoryId", connection);
+            command.Parameters.AddWithValue("@CategoryId", categoryId);
+
+            await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task DeleteByProductIdAsync(int productId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var command = new SqlCommand(
+                "DELETE FROM ProductCategories WHERE ProductId = @ProductId", connection);
+            command.Parameters.AddWithValue("@ProductId", productId);
+
+            await command.ExecuteNonQueryAsync();
+        }
+
+        public async Task<IEnumerable<ProductCategories>> GetByProductIdAsync(int productId)
+        {
+            var pd = new List<ProductCategories>();
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var command = new SqlCommand(
+                "SELECT * FROM ProductCategories WHERE ProductId = @ProductId", connection);
+            command.Parameters.AddWithValue("@ProductId", productId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                pd.Add( new ProductCategories
+                {
+                    ProductId = reader.GetInt32("ProductId"),
+                    CategoryId = reader.GetInt32("CategoryId")
+                });
+            }
+            return pd;
         }
     }
 }

@@ -1,0 +1,47 @@
+dotnet new sln -n ECommerce
+dotnet new classlib -n ECommerce.Domain -o ECommerce.Domain
+dotnet new classlib -n ECommerce.Application -o ECommerce.Application
+dotnet new classlib -n ECommerce.Infrastructure -o ECommerce.Infrastructure
+dotnet new webapi -n ECommerce.Web -o ECommerce.Web
+
+dotnet sln add ECommerce.Domain/ECommerce.Domain.csproj
+dotnet sln add ECommerce.Application/ECommerce.Application.csproj
+dotnet sln add ECommerce.Infrastructure/ECommerce.Infrastructure.csproj
+dotnet sln add ECommerce.Web/ECommerce.Web.csproj
+
+dotnet add ECommerce.Application/ECommerce.Application.csproj reference ECommerce.Domain/ECommerce.Domain.csproj
+dotnet add ECommerce.Infrastructure/ECommerce.Infrastructure.csproj reference ECommerce.Application/ECommerce.Application.csproj ECommerce.Domain/ECommerce.Domain.csproj
+dotnet add ECommerce.Web/ECommerce.Web.csproj reference ECommerce.Application/ECommerce.Application.csproj ECommerce.Infrastructure/ECommerce.Infrastructure.csproj
+
+dotnet add ECommerce.Web/ECommerce.Web.csproj package Microsoft.Data.SqlClient
+dotnet add ECommerce.Infrastructure/ECommerce.Infrastructure.csproj package Microsoft.Data.SqlClient
+
+
+
+ECommerce/
+├── ECommerce.sln
+├── ECommerce.Domain/
+│   ├── ECommerce.Domain.csproj
+│   ├── Entities/
+│   │   ├── [Address.cs, AdminLog.cs, Cart.cs, Category.cs, CustomerSupportTicket.cs, Discount.cs, Inventory.cs, Notification.cs, Order.cs, OrderItem.cs, Payment.cs, Permission.cs, Product.cs, ProductCategories.cs, ProductVariant.cs, ReturnRequest.cs, Role.cs, RolePermission.cs, ShippingInfo.cs, ShippingMethod.cs, StockMovement.cs, TaxRule.cs, User.cs, UserRole.cs, Warehouse.cs, Wishlist.cs]
+│   ├── Repositories/
+│   │   ├── [IAddressRepository.cs, IAdminLogRepository.cs, ICartRepository.cs, ICategoryRepository.cs, ICustomerSupportTicketRepository.cs, IDiscountRepository.cs, IInventoryRepository.cs, INotificationRepository.cs, IOrderItemRepository.cs, IOrderRepository.cs, IPaymentRepository.cs, IPermissionRepository.cs, IProductCategoriesRepository.cs, IProductRepository.cs, IProductVariantRepository.cs, IReturnRequestRepository.cs, IRolePermissionRepository.cs, IRoleRepository.cs, IShippingInfoRepository.cs, IShippingMethodRepository.cs, IStockMovementRepository.cs, ITaxRuleRepository.cs, IUserRepository.cs, IUserRoleRepository.cs, IWarehouseRepository.cs, IWishlistRepository.cs]
+│   │   ├── IUnitOfWork.cs
+├── ECommerce.Application/
+│   ├── ECommerce.Application.csproj
+│   ├── Dtos/
+│   │   ├── [AddressDto.cs, AdminLogDto.cs, CartDto.cs, CategoryDto.cs, CustomerSupportTicketDto.cs, DiscountDto.cs, InventoryDto.cs, NotificationDto.cs, OrderDto.cs, OrderItemDto.cs, PaymentDto.cs, PermissionDto.cs, ProductCategoriesDto.cs, ProductDto.cs, ProductVariantDto.cs, ReturnRequestDto.cs, RoleDto.cs, RolePermissionDto.cs, ShippingInfoDto.cs, ShippingMethodDto.cs, StockMovementDto.cs, TaxRuleDto.cs, UserDto.cs, UserRoleDto.cs, WarehouseDto.cs, WishlistDto.cs]
+│   ├── Services/
+│   │   ├── [AddressService.cs, AdminLogService.cs, CartService.cs, CategoryService.cs, CustomerSupportTicketService.cs, DiscountService.cs, InventoryService.cs, NotificationService.cs, OrderItemService.cs, OrderService.cs, PaymentService.cs, PermissionService.cs, ProductCategoriesService.cs, ProductService.cs, ProductVariantService.cs, ReturnRequestService.cs, RolePermissionService.cs, RoleService.cs, ShippingInfoService.cs, ShippingMethodService.cs, StockMovementService.cs, TaxRuleService.cs, UserRoleService.cs, UserService.cs, WarehouseService.cs, WishlistService.cs]
+│   │   ├── [IAddressService.cs, IAdminLogService.cs, ICartService.cs, ICategoryService.cs, ICustomerSupportTicketService.cs, IDiscountService.cs, IInventoryService.cs, INotificationService.cs, IOrderItemService.cs, IOrderService.cs, IPaymentService.cs, IPermissionService.cs, IProductCategoriesService.cs, IProductService.cs, IProductVariantService.cs, IReturnRequestService.cs, IRolePermissionService.cs, IRoleService.cs, IShippingInfoService.cs, IShippingMethodService.cs, IStockMovementService.cs, ITaxRuleService.cs, IUserRoleService.cs, IUserService.cs, IWarehouseService.cs, IWishlistService.cs]
+├── ECommerce.Infrastructure/
+│   ├── ECommerce.Infrastructure.csproj
+│   ├── Repositories/
+│   │   ├── [AddressRepository.cs, AdminLogRepository.cs, CartRepository.cs, CategoryRepository.cs, CustomerSupportTicketRepository.cs, DiscountRepository.cs, InventoryRepository.cs, NotificationRepository.cs, OrderItemRepository.cs, OrderRepository.cs, PaymentRepository.cs, PermissionRepository.cs, ProductCategoriesRepository.cs, ProductRepository.cs, ProductVariantRepository.cs, ReturnRequestRepository.cs, RolePermissionRepository.cs, RoleRepository.cs, ShippingInfoRepository.cs, ShippingMethodRepository.cs, StockMovementRepository.cs, TaxRuleRepository.cs, UserRepository.cs, UserRoleRepository.cs, WarehouseRepository.cs, WishlistRepository.cs]
+│   │   ├── UnitOfWork.cs
+├── ECommerce.WebApi/
+│   ├── ECommerce.WebApi.csproj
+│   ├── Program.cs
+│   ├── appsettings.json
+│   ├── Controllers/
+│   │   ├── [AddressController.cs, AdminLogController.cs, CartController.cs, CategoryController.cs, CustomerSupportTicketController.cs, DiscountController.cs, InventoryController.cs, NotificationController.cs, OrderController.cs, OrderItemController.cs, PaymentController.cs, PermissionController.cs, ProductCategoriesController.cs, ProductController.cs, ProductVariantController.cs, ReturnRequestController.cs, RoleController.cs, RolePermissionController.cs, ShippingInfoController.cs, ShippingMethodController.cs, StockMovementController.cs, TaxRuleController.cs, UserController.cs, UserRoleController.cs, WarehouseController.cs, WishlistController.cs]

@@ -92,5 +92,17 @@ namespace ECommerce.Infrastructure.Repositories
 
             await command.ExecuteNonQueryAsync();
         }
+
+        public async Task DeleteByRoleIdAsync(int roleId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var command = new SqlCommand(
+                "DELETE FROM RolePermissions WHERE RoleId = @RoleId ", connection);
+            command.Parameters.AddWithValue("@RoleId", roleId);
+
+            await command.ExecuteNonQueryAsync();
+        }
+        
     }
 }
