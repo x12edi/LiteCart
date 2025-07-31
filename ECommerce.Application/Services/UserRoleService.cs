@@ -17,6 +17,17 @@ namespace ECommerce.Application.Services
             _unitOfWork = unitOfWork;
         }
 
+        public async Task<IEnumerable<UserRoleDto>> GetByUserIdAsync(int userId)
+        {
+            var userRole = await _unitOfWork.UserRoles.GetByUserIdAsync(userId);
+            
+            return userRole.Select(ur =>  new UserRoleDto
+            {
+                UserId = ur.UserId,
+                RoleId = ur.RoleId
+            });
+        }
+
         public async Task<UserRoleDto> GetByKeysAsync(int userId, int roleId)
         {
             var userRole = await _unitOfWork.UserRoles.GetByUserAndRoleIdAsync(userId, roleId);

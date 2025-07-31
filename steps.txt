@@ -16,7 +16,8 @@ dotnet add ECommerce.Web/ECommerce.Web.csproj reference ECommerce.Application/EC
 dotnet add ECommerce.Web/ECommerce.Web.csproj package Microsoft.Data.SqlClient
 dotnet add ECommerce.Infrastructure/ECommerce.Infrastructure.csproj package Microsoft.Data.SqlClient
 
-
+dotnet add package Microsoft.AspNetCore.Mvc.NewtonsoftJson --version 9.0.0-preview.7.24406.2
+dotnet add package Swashbuckle.AspNetCore --version 6.9.0
 
 ECommerce/
 ├── ECommerce.sln
@@ -45,3 +46,5 @@ ECommerce/
 │   ├── appsettings.json
 │   ├── Controllers/
 │   │   ├── [AddressController.cs, AdminLogController.cs, CartController.cs, CategoryController.cs, CustomerSupportTicketController.cs, DiscountController.cs, InventoryController.cs, NotificationController.cs, OrderController.cs, OrderItemController.cs, PaymentController.cs, PermissionController.cs, ProductCategoriesController.cs, ProductController.cs, ProductVariantController.cs, ReturnRequestController.cs, RoleController.cs, RolePermissionController.cs, ShippingInfoController.cs, ShippingMethodController.cs, StockMovementController.cs, TaxRuleController.cs, UserController.cs, UserRoleController.cs, WarehouseController.cs, WishlistController.cs]
+
+

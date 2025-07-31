@@ -11,3 +11,4 @@
 /ECommerce.Infrastructure/obj
 /ECommerce.Web/bin/Debug/net9.0
 /ECommerce.Web/obj
+/ECommerce.Web/wwwroot/lib

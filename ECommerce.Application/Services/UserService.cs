@@ -32,6 +32,16 @@ namespace ECommerce.Application.Services
             };
         }
 
+        public async Task<IEnumerable<UserRoleDto>> GetUserRolesAsync(int id)
+        {
+            var userRole = await _unitOfWork.UserRoles.GetByUserIdAsync(id);
+            return userRole.Select(u => new UserRoleDto
+            {
+                UserId = u.UserId,
+                RoleId = u.RoleId
+            });
+        }
+
         public async Task<IEnumerable<UserDto>> GetAllAsync()
         {
             var users = await _unitOfWork.Users.GetAllAsync();
@@ -40,6 +50,7 @@ namespace ECommerce.Application.Services
                 Id = u.Id,
                 Email = u.Email,
                 Username = u.Name,
+                PasswordHash = u.PasswordHash
                 //IsActive = u.IsActive
             });
         }

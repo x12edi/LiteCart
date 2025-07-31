@@ -5,7 +5,7 @@ using System.Data;
 
 namespace ECommerce.Infrastructure.Repositories
 {
-    public class UserRoleRepository : IRepository<UserRole>
+    public class UserRoleRepository : IUserRoleRepository
     {
         private readonly string _connectionString;
 
@@ -38,6 +38,27 @@ namespace ECommerce.Infrastructure.Repositories
                 };
             }
             return null;
+        }
+
+        public async Task<IEnumerable<UserRole>> GetByUserIdAsync(int userId)
+        {
+            var userRoles = new List<UserRole>();
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var command = new SqlCommand(
+                "SELECT * FROM UserRoles WHERE UserId = @UserId ", connection);
+            command.Parameters.AddWithValue("@UserId", userId);
+            
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                userRoles.Add(new UserRole
+                {
+                    UserId = reader.GetInt32("UserId"),
+                    RoleId = reader.GetInt32("RoleId")
+                });
+            }
+            return userRoles;
         }
 
         public async Task<IEnumerable<UserRole>> GetAllAsync()

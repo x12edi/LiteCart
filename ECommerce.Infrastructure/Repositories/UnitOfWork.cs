@@ -63,7 +63,7 @@ namespace ECommerce.Infrastructure.Repositories
         public IRepository<ShippingInfo> ShippingInfos => _shippingInfos ??= new ShippingInfoRepository(_connectionString);
         public IReviewRepository Reviews => _reviews ??= (IReviewRepository) new ReviewRepository(_connectionString);
         public IRepository<Role> Roles => _roles ??= new RoleRepository(_connectionString);
-        public IUserRoleRepository UserRoles => _userRoles ??= (IUserRoleRepository) new UserRoleRepository(_connectionString);
+        public IUserRoleRepository UserRoles => _userRoles ??= new UserRoleRepository(_connectionString);
         public IRepository<Permission> Permissions => _permissions ??= new PermissionRepository(_connectionString);
         public IRolePermissionRepository RolePermissions => _rolePermissions ??= (IRolePermissionRepository) new RolePermissionRepository(_connectionString);
         public IRepository<AdminLog> AdminLogs => _adminLogs ??= new AdminLogRepository(_connectionString);
