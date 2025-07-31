@@ -1,7 +1,10 @@
 ﻿using ECommerce.Domain.Entities;
 using ECommerce.Domain.Repositories;
 using Microsoft.Data.SqlClient;
+using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
 
 namespace ECommerce.Infrastructure.Repositories
 {
@@ -72,17 +75,16 @@ namespace ECommerce.Infrastructure.Repositories
             await connection.OpenAsync();
             var command = new SqlCommand(
                 "INSERT INTO Products (Name, Description, Price, SKU, Status, Images, CreatedAt, UpdatedAt) " +
-                "VALUES (@Name, @Description, @Price, @SKU, @Status, @Images, @CreatedAt, @UpdatedAt)", connection);
+                "OUTPUT INSERTED.Id " +
+                "VALUES (@Name, @Description, @Price, @SKU, @Status, @Images, GETUTCDATE(), GETUTCDATE())", connection);
             command.Parameters.AddWithValue("@Name", entity.Name);
             command.Parameters.AddWithValue("@Description", (object)entity.Description ?? DBNull.Value);
             command.Parameters.AddWithValue("@Price", entity.Price);
             command.Parameters.AddWithValue("@SKU", entity.SKU);
             command.Parameters.AddWithValue("@Status", entity.Status);
             command.Parameters.AddWithValue("@Images", (object)entity.Images ?? DBNull.Value);
-            command.Parameters.AddWithValue("@CreatedAt", entity.CreatedAt);
-            command.Parameters.AddWithValue("@UpdatedAt", entity.UpdatedAt);
 
-            await command.ExecuteNonQueryAsync();
+            entity.Id = (int)await command.ExecuteScalarAsync();
         }
 
         public async Task UpdateAsync(Product entity)
@@ -91,7 +93,7 @@ namespace ECommerce.Infrastructure.Repositories
             await connection.OpenAsync();
             var command = new SqlCommand(
                 "UPDATE Products SET Name = @Name, Description = @Description, Price = @Price, " +
-                "SKU = @SKU, Status = @Status, Images = @Images, UpdatedAt = @UpdatedAt WHERE Id = @Id", connection);
+                "SKU = @SKU, Status = @Status, Images = @Images, UpdatedAt = GETUTCDATE() WHERE Id = @Id", connection);
             command.Parameters.AddWithValue("@Id", entity.Id);
             command.Parameters.AddWithValue("@Name", entity.Name);
             command.Parameters.AddWithValue("@Description", (object)entity.Description ?? DBNull.Value);
@@ -99,7 +101,6 @@ namespace ECommerce.Infrastructure.Repositories
             command.Parameters.AddWithValue("@SKU", entity.SKU);
             command.Parameters.AddWithValue("@Status", entity.Status);
             command.Parameters.AddWithValue("@Images", (object)entity.Images ?? DBNull.Value);
-            command.Parameters.AddWithValue("@UpdatedAt", entity.UpdatedAt);
 
             await command.ExecuteNonQueryAsync();
         }

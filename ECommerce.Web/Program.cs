@@ -36,6 +36,7 @@ builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ICustomerSupportTicketService, CustomerSupportTicketService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();  
 // Add other services as needed...
 
 // Add Swagger for API documentation

@@ -5,17 +5,23 @@
         public int Id { get; set; }
         public string Name { get; set; }
         public string Description { get; set; }
-        public decimal BasePrice { get; set; }
-        public bool IsActive { get; set; }
-        public IEnumerable<int> CategoryIds { get; set; }
+        public decimal Price { get; set; }
+        public string SKU { get; set; }
+        public string Status { get; set; } // Active, Inactive, Discontinued
+        public byte[] Images { get; set; } // VARBINARY(MAX)
+        public DateTime CreatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; }
+        public List<int> CategoryIds { get; set; } = new List<int>(); // For ProductCategories
     }
 
     public class CreateProductDto
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public decimal BasePrice { get; set; }
-        public bool IsActive { get; set; }
+        public decimal Price { get; set; }
+        public string SKU { get; set; }
+        public string Status { get; set; } // Active, Inactive, Discontinued
+        public byte[] Images { get; set; } // VARBINARY(MAX)
         public IEnumerable<int> CategoryIds { get; set; }
     }
 
@@ -23,8 +29,10 @@
     {
         public string Name { get; set; }
         public string Description { get; set; }
-        public decimal BasePrice { get; set; }
-        public bool IsActive { get; set; }
+        public decimal Price { get; set; }
+        public string SKU { get; set; }
+        public string Status { get; set; } // Active, Inactive, Discontinued
+        public byte[] Images { get; set; } // VARBINARY(MAX)
         public IEnumerable<int> CategoryIds { get; set; }
     }
 }

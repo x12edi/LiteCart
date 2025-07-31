@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace ECommerce.Web.Controllers
 {
-    //[AdminAuthorize]
+    [AdminAuthorize]
     public class DashboardController : Controller
     {
         private readonly IUserService _userService;

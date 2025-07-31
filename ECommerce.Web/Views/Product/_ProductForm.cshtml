@@ -1,0 +1,65 @@
+﻿@model ECommerce.Web.Models.ProductViewModel
+@using ECommerce.Application.Dtos
+@* @inject Microsoft.AspNetCore.Mvc.Localization.IViewLocalizer Localizer *@
+@{
+    var categories = ViewBag.Categories as IEnumerable<CategoryDto>;// List<CategoryDto>;
+}
+<form id="productForm" asp-action="@(Model.Id == 0 ? "Create" : "Edit")" method="post" enctype="multipart/form-data">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Price" class="form-label">Price</label>
+        <input asp-for="Price" class="form-control" type="number" step="0.01" />
+        <span asp-validation-for="Price" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="SKU" class="form-label">SKU</label>
+        <input asp-for="SKU" class="form-control" />
+        <span asp-validation-for="SKU" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Status" class="form-label">Status</label>
+        <select asp-for="Status" class="form-control">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+            <option value="Discontinued">Discontinued</option>
+        </select>
+        <span asp-validation-for="Status" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="ImageFile" class="form-label">Image</label>
+        <input asp-for="ImageFile" class="form-control" type="file" accept="image/*" />
+        @if (!string.IsNullOrEmpty(Model.ImageBase64))
+        {
+            <img src="data:image/jpeg;base64,@Model.ImageBase64" alt="Product Image" class="img-thumbnail mt-2" style="max-width: 100px;" />
+        }
+        <span asp-validation-for="ImageFile" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="CategoryIds" class="form-label">Categories</label>
+        <select asp-for="CategoryIds" class="form-control" multiple>
+            @foreach (var category in categories)
+            {
+                <option value="@category.Id" selected="@(Model.CategoryIds.Contains(category.Id))">@category.Name</option>
+            }
+        </select>
+        <span asp-validation-for="CategoryIds" class="text-danger"></span>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>

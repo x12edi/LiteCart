@@ -4,7 +4,10 @@ using ECommerce.Domain.Repositories;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
+using System.Xml.Linq;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace ECommerce.Application.Services
 {
@@ -29,9 +32,11 @@ namespace ECommerce.Application.Services
                 Id = product.Id,
                 Name = product.Name,
                 Description = product.Description,
-                BasePrice = product.Price,
-                //IsActive = product.IsActive,
-                CategoryIds = productCategories.Select(pc => pc.CategoryId)
+                Price = product.Price,
+                SKU = product.SKU,
+                Status = product.Status,
+                Images = product.Images,
+                CategoryIds = productCategories.Select(pc => pc.CategoryId).ToList()
             };
         }
 
@@ -47,9 +52,11 @@ namespace ECommerce.Application.Services
                     Id = product.Id,
                     Name = product.Name,
                     Description = product.Description,
-                    BasePrice = product.Price,
-                    //IsActive = product.IsActive,
-                    CategoryIds = productCategories.Select(pc => pc.CategoryId)
+                    Price = product.Price,
+                    SKU = product.SKU,
+                    Status = product.Status,
+                    Images = product.Images,
+                    CategoryIds = productCategories.Select(pc => pc.CategoryId).ToList()
                 });
             }
             return result;
@@ -59,15 +66,17 @@ namespace ECommerce.Application.Services
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
                 throw new ArgumentException("Product name is required.");
-            if (dto.BasePrice < 0)
+            if (dto.Price < 0)
                 throw new ArgumentException("Base price cannot be negative.");
 
             var product = new Product
             {
                 Name = dto.Name,
                 Description = dto.Description,
-                Price = dto.BasePrice
-                //IsActive = dto.IsActive
+                Price = dto.Price,
+                SKU = dto.SKU,
+                Status = dto.Status,
+                Images = dto.Images
             };
 
             await _unitOfWork.Products.AddAsync(product);
@@ -90,9 +99,11 @@ namespace ECommerce.Application.Services
                 Id = product.Id,
                 Name = product.Name,
                 Description = product.Description,
-                BasePrice = product.Price,
-                //IsActive = product.IsActive,
-                CategoryIds = dto.CategoryIds ?? Enumerable.Empty<int>()
+                Price = product.Price,
+                SKU = product.SKU,
+                Status = product.Status,
+                Images = product.Images,
+                CategoryIds = (dto.CategoryIds ?? Enumerable.Empty<int>()).ToList()
             };
         }
 
@@ -100,7 +111,7 @@ namespace ECommerce.Application.Services
         {
             if (string.IsNullOrWhiteSpace(dto.Name))
                 throw new ArgumentException("Product name is required.");
-            if (dto.BasePrice < 0)
+            if (dto.Price < 0)
                 throw new ArgumentException("Base price cannot be negative.");
 
             var product = await _unitOfWork.Products.GetByIdAsync(id);
@@ -109,8 +120,10 @@ namespace ECommerce.Application.Services
 
             product.Name = dto.Name;
             product.Description = dto.Description;
-            product.Price = dto.BasePrice;
-            //product.IsActive = dto.IsActive;
+            product.Price = dto.Price;
+            product.SKU = dto.SKU;
+            product.Status = dto.Status;
+            product.Images = dto.Images;
 
             // Update categories
             await _unitOfWork.ProductCategories.DeleteByProductIdAsync(id);

@@ -25,12 +25,6 @@ namespace ECommerce.Web.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Login(LoginViewModel model)
         {
-            var errors = ModelState.Where(kvp => kvp.Value.Errors.Any())
-                       .Select(kvp => new {
-                           Field = kvp.Key,
-                           Errors = kvp.Value.Errors.Select(e => e.ErrorMessage).ToArray()
-                       }).ToList();
-
             if (!ModelState.IsValid)
             {
                 foreach (var error in ModelState)

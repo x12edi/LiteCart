@@ -1,9 +1,18 @@
 ﻿using ECommerce.Application.Services;
 using Microsoft.AspNetCore.Mvc;
+using System;
 using System.Threading.Tasks;
 
 namespace ECommerce.Web.ViewComponents
 {
+    public class MetricsViewModel
+    {
+        public int UserCount { get; set; }
+        public int OrderCount { get; set; }
+        public int ProductCount { get; set; }
+        public int TicketCount { get; set; }
+    }
+
     public class MetricsViewComponent : ViewComponent
     {
         private readonly IUserService _userService;
@@ -17,28 +26,37 @@ namespace ECommerce.Web.ViewComponents
             IProductService productService,
             ICustomerSupportTicketService supportTicketService)
         {
-            _userService = userService;
-            _orderService = orderService;
-            _productService = productService;
-            _supportTicketService = supportTicketService;
+            _userService = userService ?? throw new ArgumentNullException(nameof(userService));
+            _orderService = orderService ?? throw new ArgumentNullException(nameof(orderService));
+            _productService = productService ?? throw new ArgumentNullException(nameof(productService));
+            _supportTicketService = supportTicketService ?? throw new ArgumentNullException(nameof(supportTicketService));
         }
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var userCount = (await _userService.GetAllAsync()).Count();
-            var orderCount = (await _orderService.GetAllAsync()).Count();
-            var productCount = (await _productService.GetAllAsync()).Count();
-            var ticketCount = (await _supportTicketService.GetAllAsync()).Count();
-
-            var model = new
+            try
             {
-                UserCount = userCount,
-                OrderCount = orderCount,
-                ProductCount = productCount,
-                TicketCount = ticketCount
-            };
+                var userCount = (await _userService.GetAllAsync()).Count();
+                var orderCount = (await _orderService.GetAllAsync()).Count();
+                var productCount = (await _productService.GetAllAsync()).Count();
+                var ticketCount = (await _supportTicketService.GetAllAsync()).Count();
 
-            return View(model);
+                var model = new MetricsViewModel
+                {
+                    UserCount = userCount,
+                    OrderCount = orderCount,
+                    ProductCount = productCount,
+                    TicketCount = ticketCount
+                };
+
+                return View("Default", model);
+            }
+            catch (Exception ex)
+            {
+                // Log error (in production, use a logger like Serilog)
+                Console.WriteLine($"MetricsViewComponent error: {ex.Message}");
+                return Content("Error loading metrics. Please try again.");
+            }
         }
     }
 }
