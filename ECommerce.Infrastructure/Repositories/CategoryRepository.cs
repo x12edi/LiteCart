@@ -18,7 +18,11 @@ namespace ECommerce.Infrastructure.Repositories
         {
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
-            var command = new SqlCommand("SELECT * FROM Categories WHERE Id = @Id", connection);
+            var command = new SqlCommand(@"
+                SELECT c.Id, c.Name, c.ParentId, p.Name AS ParentName
+                FROM Categories c
+                LEFT JOIN Categories p ON c.ParentId = p.Id
+                WHERE c.Id = @Id", connection);
             command.Parameters.AddWithValue("@Id", id);
 
             using var reader = await command.ExecuteReaderAsync();
@@ -28,7 +32,8 @@ namespace ECommerce.Infrastructure.Repositories
                 {
                     Id = reader.GetInt32("Id"),
                     Name = reader.GetString("Name"),
-                    ParentId = reader["ParentId"] != DBNull.Value ? reader.GetInt32("ParentId") : null
+                    ParentId = reader["ParentId"] != DBNull.Value ? reader.GetInt32("ParentId") : null,
+                    ParentCategory = reader["ParentName"] != DBNull.Value ? reader.GetString("ParentName") : null,
                 };
             }
             return null;
@@ -39,8 +44,10 @@ namespace ECommerce.Infrastructure.Repositories
             var categories = new List<Category>();
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
-            var command = new SqlCommand("SELECT * FROM Categories", connection);
-
+            var command = new SqlCommand(@"
+                SELECT c.Id, c.Name, c.ParentId, p.Name AS ParentName
+                FROM Categories c
+                LEFT JOIN Categories p ON c.ParentId = p.Id", connection);
             using var reader = await command.ExecuteReaderAsync();
             while (await reader.ReadAsync())
             {
@@ -48,7 +55,8 @@ namespace ECommerce.Infrastructure.Repositories
                 {
                     Id = reader.GetInt32("Id"),
                     Name = reader.GetString("Name"),
-                    ParentId = reader["ParentId"] != DBNull.Value ? reader.GetInt32("ParentId") : null
+                    ParentId = reader["ParentId"] != DBNull.Value ? reader.GetInt32("ParentId") : null,
+                    ParentCategory = reader["ParentName"] != DBNull.Value ? reader.GetString("ParentName") : null,
                 });
             }
             return categories;

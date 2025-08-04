@@ -9,11 +9,11 @@
     <input type="hidden" asp-for="CreatedAt" />
     <div class="mb-3">
         <label asp-for="UserEmail" class="form-label">User Email</label>
-        <input asp-for="UserEmail" class="form-control" disabled />
+        <input asp-for="UserEmail" class="form-control" readonly />
     </div>
     <div class="mb-3">
         <label asp-for="TotalAmount" class="form-label">Total Amount</label>
-        <input asp-for="TotalAmount" class="form-control" type="number" step="0.01" />
+        <input asp-for="TotalAmount" class="form-control" type="number" step="0.01" readonly />
         <span asp-validation-for="TotalAmount" class="text-danger"></span>
     </div>
     <div class="mb-3">

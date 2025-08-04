@@ -17,7 +17,7 @@ namespace ECommerce.Web.Models
         public string Status { get; set; }
 
         public DateTime CreatedAt { get; set; }
-        public string SuccessMessage { get; set; }
-        public string ErrorMessage { get; set; }
+        public string? SuccessMessage { get; set; }
+        public string? ErrorMessage { get; set; }
     }
 }

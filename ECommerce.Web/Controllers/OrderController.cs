@@ -65,6 +65,15 @@ namespace ECommerce.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
+                foreach (var error in ModelState)
+                {
+                    Console.WriteLine($"Key: {error.Key}");
+                    foreach (var e in error.Value.Errors)
+                    {
+                        Console.WriteLine($"Error: {e.ErrorMessage}");
+                    }
+                }
+
                 return PartialView("_OrderForm", model);
             }
 

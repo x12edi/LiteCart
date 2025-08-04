@@ -1,0 +1,31 @@
+﻿@model ECommerce.Web.Models.CategoryViewModel
+@using ECommerce.Application.Dtos
+@{
+    var categories = ViewBag.Categories as IEnumerable<CategoryDto>;// List<CategoryDto>;
+}
+<form id="categoryForm" asp-action="@(Model.Id == 0 ? "Create" : "Edit")" method="post">
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div class="alert alert-danger">@Model.ErrorMessage</div>
+    }
+    <input type="hidden" asp-for="Id" />
+    <div class="mb-3">
+        <label asp-for="Name" class="form-label">Category Name</label>
+        <input asp-for="Name" class="form-control" />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="ParentId" class="form-label">Parent Category</label>
+        <select asp-for="ParentId" class="form-select">
+            <option value="">-- None --</option>
+            @foreach (var c in categories)
+            {
+                <option value="@c.Id" selected="@(Model.ParentId == c.Id)">@c.Name</option>
+            }
+        </select>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+</form>

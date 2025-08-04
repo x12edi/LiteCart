@@ -27,7 +27,8 @@ namespace ECommerce.Application.Services
             {
                 Id = category.Id,
                 Name = category.Name,
-                //Description = category.Description
+                ParentId = category.ParentId,
+                ParentCategory = category.ParentCategory
             };
         }
 
@@ -38,7 +39,8 @@ namespace ECommerce.Application.Services
             {
                 Id = c.Id,
                 Name = c.Name,
-                //Description = c.Description
+                ParentId = c.ParentId,
+                ParentCategory = c.ParentCategory
             });
         }
 
@@ -50,7 +52,7 @@ namespace ECommerce.Application.Services
             var category = new Category
             {
                 Name = dto.Name,
-                //Description = dto.Description
+                ParentId= dto.ParentId,
             };
 
             await _unitOfWork.Categories.AddAsync(category);
@@ -74,7 +76,7 @@ namespace ECommerce.Application.Services
                 throw new KeyNotFoundException("Category not found.");
 
             category.Name = dto.Name;
-            //category.Description = dto.Description;
+            category.ParentId = dto.ParentId;
 
             await _unitOfWork.Categories.UpdateAsync(category);
             await _unitOfWork.CompleteAsync();
