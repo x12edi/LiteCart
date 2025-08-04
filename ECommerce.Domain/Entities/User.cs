@@ -8,6 +8,9 @@
         public string PasswordHash { get; set; }
         public string Phone { get; set; }
         public DateTime CreatedAt { get; set; }
+        public bool IsActive { get; set; }
+        public bool IsCustomer { get; set; }
+
         public ICollection<UserRole> Roles { get; set; } = new List<UserRole>();
     }
 }

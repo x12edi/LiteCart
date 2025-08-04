@@ -1,0 +1,134 @@
+﻿@model IEnumerable<ECommerce.Web.Models.UserViewModel>
+
+@{
+    ViewData["Title"] = "Manage users";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row">
+    <partial name="_SidebarPartial" />
+    <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+        <h2>@ViewData["Title"]</h2>
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success">@TempData["SuccessMessage"]</div>
+        }
+        <button class="btn btn-primary mb-3" data-bs-toggle="modal" data-bs-target="#categoryModal" onclick="loadCreateForm()">Add User</button>
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>User ID</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Phone</th>
+                    <th>Created Date</th>
+                    <th>Active</th>
+                    <th>Is Customer</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var o in Model)
+                {
+                    <tr>
+                        <td>@o.Id</td>
+                        <td>@o.Username</td>
+                        <td>@o.Email</td>
+                        <td>@o.Phone</td>
+                        <td>@o.CreatedAt.ToString("g")</td>
+                        <td><input class="form-check-input" type="checkbox" checked="@o.IsActive" disabled /></td>
+                        <td><input class="form-check-input" type="checkbox" checked="@o.IsCustomer" disabled /></td>
+                        <td>
+                            <button class="btn btn-sm btn-warning" onclick="loadEditForm(@o.Id)">Edit</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteUser(@o.Id)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </main>
+</div>
+<!-- Modal for Edit -->
+<div class="modal fade" id="userModal" tabindex="-1" aria-labelledby="userModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="userModalLabel">User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="userFormContainer">
+                <!-- Form will be loaded via AJAX -->
+            </div>
+        </div>
+    </div>
+</div>
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function loadCreateForm()
+        {
+            $.get('/User/Create/' , function (data) {
+                $('#userFormContainer').html(data);
+                $('#userModalLabel').text('Add User');
+                $('#userModal').modal('show');
+                $.validator.unobtrusive.parse('#userForm');
+            });
+        }
+
+        function loadEditForm(id)
+        {
+            $.get('/User/Edit/' + id, function (data) {
+                $('#userFormContainer').html(data);
+                $('#userModalLabel').text('Edit User');
+                $('#userModal').modal('show');
+                $.validator.unobtrusive.parse('#userForm');
+            });
+        }
+
+        function deleteUser(id) {
+            if (confirm('Are you sure you want to delete this user?')) {
+                $.ajax({
+                    url: '/User/Delete/' + id,
+                    type: 'POST',
+                    //data: { id: id },
+                    /*headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },*/
+                    success: function (result) {
+                        if (result.success) {
+                            location.reload();
+                        } else {
+                            alert(result.message);
+                        }
+                    },
+                    error: function (xhr) {
+                        console.log(xhr.responseText);
+                        alert('Error ' + xhr.status + ': ' + xhr.statusText);
+                    }
+                });
+            }
+        }
+
+        $(document).ready(function () {
+            $('#userFormContainer').on('submit', '#userForm', function (e) {
+                e.preventDefault();
+                $.ajax({
+                    url: $(this).attr('action'),
+                    type: 'POST',
+                    data: $(this).serialize(),
+                    headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (result) {
+                        if (result.success) {
+                            $('#userModal').modal('hide');
+                            location.reload();
+                        } else {
+                            $('#userFormContainer').html(result);
+                            $.validator.unobtrusive.parse('#userForm');
+                        }
+                    },
+                    error: function () {
+                        alert('Error saving user.');
+                    }
+                });
+            });
+        });
+
+    </script>
+}

@@ -31,7 +31,9 @@ namespace ECommerce.Infrastructure.Repositories
                     Email = reader.GetString("Email"),
                     PasswordHash = reader.GetString("PasswordHash"),
                     Phone = reader["Phone"] != DBNull.Value ? reader.GetString("Phone") : null,
-                    CreatedAt = reader.GetDateTime("CreatedAt")
+                    CreatedAt = reader.GetDateTime("CreatedAt"),
+                    IsActive = reader["IsActive"] != DBNull.Value ? reader.GetBoolean("IsActive") : false,
+                    IsCustomer = reader["IsCustomer"] != DBNull.Value ? reader.GetBoolean("IsCustomer") : false,
                 };
             }
             return null;
@@ -54,7 +56,9 @@ namespace ECommerce.Infrastructure.Repositories
                     Email = reader.GetString("Email"),
                     PasswordHash = reader.GetString("PasswordHash"),
                     Phone = reader["Phone"] != DBNull.Value ? reader.GetString("Phone") : null,
-                    CreatedAt = reader.GetDateTime("CreatedAt")
+                    CreatedAt = reader.GetDateTime("CreatedAt"),
+                    IsActive = reader["IsActive"] != DBNull.Value ? reader.GetBoolean("IsActive") : false,
+                    IsCustomer = reader["IsCustomer"] != DBNull.Value ? reader.GetBoolean("IsCustomer") : false,
                 });
             }
             return users;
@@ -65,13 +69,14 @@ namespace ECommerce.Infrastructure.Repositories
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             var command = new SqlCommand(
-                "INSERT INTO Users (Name, Email, PasswordHash, Phone, CreatedAt) " +
-                "VALUES (@Name, @Email, @PasswordHash, @Phone, @CreatedAt)", connection);
+                "INSERT INTO Users (Name, Email, PasswordHash, Phone, CreatedAt, IsActive, IsCustomer) " +
+                "VALUES (@Name, @Email, @PasswordHash, @Phone, getutcdate(),@IsActive, @IsCustomer)", connection);
             command.Parameters.AddWithValue("@Name", entity.Name);
             command.Parameters.AddWithValue("@Email", entity.Email);
             command.Parameters.AddWithValue("@PasswordHash", entity.PasswordHash);
             command.Parameters.AddWithValue("@Phone", (object)entity.Phone ?? DBNull.Value);
-            command.Parameters.AddWithValue("@CreatedAt", entity.CreatedAt);
+            command.Parameters.AddWithValue("@IsActive", entity.IsActive);
+            command.Parameters.AddWithValue("@IsCustomer", entity.IsCustomer);
 
             await command.ExecuteNonQueryAsync();
         }
@@ -81,12 +86,13 @@ namespace ECommerce.Infrastructure.Repositories
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             var command = new SqlCommand(
-                "UPDATE Users SET Name = @Name, Email = @Email, PasswordHash = @PasswordHash, Phone = @Phone WHERE Id = @Id", connection);
+                "UPDATE Users SET Email = @Email, PasswordHash = @PasswordHash, Phone = @Phone, IsActive = @IsActive WHERE Id = @Id", connection);
             command.Parameters.AddWithValue("@Id", entity.Id);
-            command.Parameters.AddWithValue("@Name", entity.Name);
+            //command.Parameters.AddWithValue("@Name", entity.Name);
             command.Parameters.AddWithValue("@Email", entity.Email);
             command.Parameters.AddWithValue("@PasswordHash", entity.PasswordHash);
             command.Parameters.AddWithValue("@Phone", (object)entity.Phone ?? DBNull.Value);
+            command.Parameters.AddWithValue("@IsActive", entity.IsActive);
 
             await command.ExecuteNonQueryAsync();
         }

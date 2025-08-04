@@ -28,7 +28,9 @@ namespace ECommerce.Application.Services
                 Id = user.Id,
                 Email = user.Email,
                 Username = user.Name,
-                //IsActive = user.IsActive
+                Phone = user.Phone,
+                IsActive = user.IsActive,
+                IsCustomer = user.IsCustomer
             };
         }
 
@@ -50,8 +52,11 @@ namespace ECommerce.Application.Services
                 Id = u.Id,
                 Email = u.Email,
                 Username = u.Name,
-                PasswordHash = u.PasswordHash
-                //IsActive = u.IsActive
+                PasswordHash = u.PasswordHash,
+                Phone = u.Phone,
+                CreatedAt = u.CreatedAt,
+                IsActive = u.IsActive,
+                IsCustomer = u.IsCustomer
             });
         }
 
@@ -66,8 +71,10 @@ namespace ECommerce.Application.Services
             {
                 Email = dto.Email,
                 Name = dto.Username,
-                PasswordHash = dto.PasswordHash
-                //IsActive = dto.IsActive
+                PasswordHash = dto.PasswordHash,
+                Phone = dto.Phone,
+                IsActive = dto.IsActive,
+                IsCustomer = dto.IsCustomer
             };
 
             await _unitOfWork.Users.AddAsync(user);
@@ -77,7 +84,8 @@ namespace ECommerce.Application.Services
             {
                 Id = user.Id,
                 Email = user.Email,
-                Username = user.Name
+                Username = user.Name,
+                Phone = user.Phone
                 //IsActive = user.IsActive
             };
         }
@@ -93,7 +101,9 @@ namespace ECommerce.Application.Services
 
             user.Email = dto.Email;
             user.Name = dto.Username;
-            //user.IsActive = dto.IsActive;
+            user.Phone  = dto.Phone;
+            user.IsActive = dto.IsActive;
+            user.IsCustomer = dto.IsCustomer;
 
             await _unitOfWork.Users.UpdateAsync(user);
             await _unitOfWork.CompleteAsync();
