@@ -19,6 +19,29 @@ namespace ECommerce.Infrastructure.Repositories
             throw new NotSupportedException("GetById is not supported for CartItem. Use GetByCartAndProductVariantIdAsync instead.");
         }
 
+        public async Task<IEnumerable<CartItem>> GetByCartIdAsync(int cartId)
+        {
+            var items = new List<CartItem>();
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var command = new SqlCommand("SELECT * FROM CartItems WHERE CartId = @CartId", connection);
+            command.Parameters.AddWithValue("@CartId", cartId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                items.Add(new CartItem
+                {
+                    CartId = reader.GetInt32("CartId"),
+                    ProductVariantId = reader.GetInt32("ProductVariantId"),
+                    Quantity = reader.GetInt32("Quantity"),
+                    PriceAtTime = reader.GetDecimal("PriceAtTime")
+                });
+            }
+            return items;
+        }
+
+
         public async Task<CartItem> GetByCartAndProductVariantIdAsync(int cartId, int productVariantId)
         {
             using var connection = new SqlConnection(_connectionString);

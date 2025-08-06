@@ -38,9 +38,35 @@ namespace ECommerce.Web.Models
         [Required(ErrorMessage = "At least one category is required")]
         public List<int> CategoryIds { get; set; } = new List<int>();
 
+        public List<ProductVariantViewModel> ProductVariants { get; set; } = new List<ProductVariantViewModel>();
+
         [ValidateNever]
         public string SuccessMessage { get; set; }
         [ValidateNever]
         public string ErrorMessage { get; set; }
     }
+
+    public class ProductListViewModel
+    {
+        public List<ProductViewModel> Products { get; set; } = new List<ProductViewModel>();
+        public List<CategoryViewModel> Categories { get; set; } = new List<CategoryViewModel>();
+        public string SearchQuery { get; set; }
+        public List<int> SelectedCategoryIds { get; set; } = new List<int>();
+        public string SortOption { get; set; } // e.g., PriceAsc, PriceDesc, NameAsc, NameDesc, Newest
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 12;
+        public int TotalProducts { get; set; }
+    }
+
+    public class ProductVariantViewModel
+    {
+        public int Id { get; set; }
+        public int ProductId { get; set; }
+        public string Size { get; set; }
+        public string Color { get; set; }
+        public decimal Price { get; set; }
+        public int Stock { get; set; }
+        public string DisplayName => $"{(Size != null ? Size : "")}{(Size != null && Color != null ? " - " : "")}{(Color != null ? Color : "")}".Trim();
+    }
+
 }

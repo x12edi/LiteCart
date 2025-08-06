@@ -7,7 +7,7 @@ namespace ECommerce.Domain.Repositories
         IRepository<Product> Products { get; }
         IRepository<Category> Categories { get; }
         IProductCategoriesRepository ProductCategories { get; }
-        IRepository<ProductVariant> ProductVariants { get; }
+        IProductVariantRepository ProductVariants { get; }
         IInventoryRepository Inventories { get; }
         IRepository<User> Users { get; }
         IRepository<Cart> Carts { get; }

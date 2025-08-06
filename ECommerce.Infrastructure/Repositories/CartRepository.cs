@@ -34,6 +34,27 @@ namespace ECommerce.Infrastructure.Repositories
             return null;
         }
 
+        public async Task<Cart> GetByUserIdAsync(string userId)
+        {
+            using var connection = new SqlConnection(_connectionString);
+            await connection.OpenAsync();
+            var command = new SqlCommand("SELECT * FROM Carts WHERE UserId = @UserId", connection);
+            command.Parameters.AddWithValue("@UserId", userId);
+
+            using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                return new Cart
+                {
+                    Id = reader.GetInt32("Id"),
+                    UserId = reader.GetInt32("UserId"),
+                    SessionId = reader.GetString("SessionId")
+                };
+            }
+            return null;
+        }
+
+
         public async Task<IEnumerable<Cart>> GetAllAsync()
         {
             var carts = new List<Cart>();
@@ -59,12 +80,13 @@ namespace ECommerce.Infrastructure.Repositories
             using var connection = new SqlConnection(_connectionString);
             await connection.OpenAsync();
             var command = new SqlCommand(
-                "INSERT INTO Carts (UserId, SessionId) VALUES (@UserId, @SessionId)", connection);
-            command.Parameters.AddWithValue("@UserId", (object)entity.UserId ?? DBNull.Value);
+                "INSERT INTO Carts (UserId, SessionId) OUTPUT INSERTED.Id VALUES (@UserId, @SessionId)", connection);
+            command.Parameters.AddWithValue("@UserId", entity.UserId);
             command.Parameters.AddWithValue("@SessionId", entity.SessionId);
 
-            await command.ExecuteNonQueryAsync();
+            entity.Id = (int)await command.ExecuteScalarAsync();
         }
+
 
         public async Task UpdateAsync(Cart entity)
         {

@@ -100,14 +100,20 @@ namespace ECommerce.Application.Services
             };
         }
 
-        public async Task AddItemAsync(int cartId, AddCartItemDto dto)
+        public async Task AddItemAsync(CartDto cart, AddCartItemDto dto)
         {
             if (dto.Quantity <= 0)
                 throw new ArgumentException("Quantity must be positive.");
 
-            var cart = await _unitOfWork.Carts.GetByIdAsync(cartId);
-            if (cart == null)
-                throw new KeyNotFoundException("Cart not found.");
+            //var cart = await _unitOfWork.Carts.GetByIdAsync(cartId);
+            if (cart.Id == 0)
+            { //throw new KeyNotFoundException("Cart not found.");
+                var newCart = new Cart();
+                newCart.UserId = cart.UserId;
+                newCart.SessionId = cart.SessionId;
+                await _unitOfWork.Carts.AddAsync(newCart);
+                cart.Id = newCart.Id;
+            }
 
             var variant = await _unitOfWork.ProductVariants.GetByIdAsync(dto.ProductVariantId);
             if (variant == null)
@@ -115,7 +121,7 @@ namespace ECommerce.Application.Services
             if (variant.Stock < dto.Quantity)
                 throw new InvalidOperationException($"Insufficient stock for product variant {dto.ProductVariantId}.");
 
-            var existingItem = await _unitOfWork.CartItems.GetByCartAndProductVariantIdAsync(cartId, dto.ProductVariantId);
+            var existingItem = await _unitOfWork.CartItems.GetByCartAndProductVariantIdAsync(cart.Id, dto.ProductVariantId);
             if (existingItem != null)
             {
                 existingItem.Quantity += dto.Quantity;
@@ -126,7 +132,7 @@ namespace ECommerce.Application.Services
             {
                 var cartItem = new CartItem
                 {
-                    CartId = cartId,
+                    CartId = cart.Id,
                     ProductVariantId = dto.ProductVariantId,
                     Quantity = dto.Quantity,
                     PriceAtTime = variant.Price

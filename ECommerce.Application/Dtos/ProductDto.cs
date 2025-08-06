@@ -12,6 +12,7 @@
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
         public List<int> CategoryIds { get; set; } = new List<int>(); // For ProductCategories
+        public List<ProductVariantDto> Variants { get; set; } = new List<ProductVariantDto>();
     }
 
     public class CreateProductDto
@@ -23,6 +24,8 @@
         public string Status { get; set; } // Active, Inactive, Discontinued
         public byte[] Images { get; set; } // VARBINARY(MAX)
         public IEnumerable<int> CategoryIds { get; set; }
+
+        public IEnumerable<ProductVariantDto> Variants { get; set; } 
     }
 
     public class UpdateProductDto
@@ -34,5 +37,6 @@
         public string Status { get; set; } // Active, Inactive, Discontinued
         public byte[] Images { get; set; } // VARBINARY(MAX)
         public IEnumerable<int> CategoryIds { get; set; }
+        public IEnumerable<ProductVariantDto> Variants { get; set; }
     }
 }

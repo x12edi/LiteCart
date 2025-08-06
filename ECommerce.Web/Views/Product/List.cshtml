@@ -1,0 +1,187 @@
+﻿@model ECommerce.Web.Models.ProductListViewModel
+@{
+    ViewData["Title"] = "Products";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>@ViewData["Title"]</h2>
+        <form asp-action="List" method="get" id="filterForm" class="row g-3">
+            <div class="col-md-4">
+                <input type="text" name="searchQuery" class="form-control" placeholder="Search by name, SKU, size, or color" value="@Model.SearchQuery" />
+            </div>
+            <div class="col-md-4">
+                <select name="categoryIds" class="form-control" multiple data-placeholder="Select Categories">
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category.Id" selected="@(Model.SelectedCategoryIds.Contains(category.Id))">
+                            @(category.ParentId.HasValue ? "— " : "")@category.Name
+                        </option>
+                    }
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="sortOption" class="form-control">
+                    <option value="Newest" selected="@(Model.SortOption == "Newest")">Newest First</option>
+                    <option value="PriceAsc" selected="@(Model.SortOption == "PriceAsc")">Price: Low to High</option>
+                    <option value="PriceDesc" selected="@(Model.SortOption == "PriceDesc")">Price: High to Low</option>
+                    <option value="NameAsc" selected="@(Model.SortOption == "NameAsc")">Name: A-Z</option>
+                    <option value="NameDesc" selected="@(Model.SortOption == "NameDesc")">Name: Z-A</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100">Filter</button>
+            </div>
+            <input type="hidden" name="pageNumber" value="1" />
+        </form>
+    </div>
+</div>
+
+<div class="row">
+    @if (!Model.Products.Any())
+    {
+        <div class="col-12">
+            <p>No products found.</p>
+        </div>
+    }
+    @foreach (var product in Model.Products)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card h-100">
+                @if (!string.IsNullOrEmpty(product.ImageBase64))
+                {
+                    <img src="data:image/jpeg;base64,@product.ImageBase64" class="card-img-top" alt="@product.Name" style="height: 200px; object-fit: cover;" />
+                }
+                else
+                {
+                    <img src="https://via.placeholder.com/200" class="card-img-top" alt="No Image" style="height: 200px; object-fit: cover;" />
+                }
+                <div class="card-body">
+                    <h5 class="card-title">@product.Name</h5>
+                    <p class="card-text">@(product.Description?.Length > 100 ? product.Description.Substring(0, 100) + "..." : product.Description)</p>
+                    @if (product.ProductVariants.Any())
+                    {
+                        <p class="card-text">
+                            <strong>Price: <span class="variant-price-@product.Id"> @(product.ProductVariants.First().Price.ToString("C"))</span></strong>
+                        </p>
+                        <p class="card-text">
+                            Stock: <span class="variant-stock-@product.Id">@(product.ProductVariants.First().Stock > 0 ? "In Stock" : "Out of Stock")</span>
+                        </p>
+                        <select class="form-select variant-select" data-product-id="@product.Id">
+                            @foreach (var variant in product.ProductVariants)
+                            {
+                                <option value="@variant.Id"
+                                        data-price="@variant.Price.ToString("C")"
+                                        data-stock="@(variant.Stock > 0 ? "In Stock" : "Out of Stock")">
+                                    @variant.DisplayName
+                                </option>
+                            }
+                        </select>
+                    }
+                    else
+                    {
+                        <p class="card-text"><strong>@product.Price.ToString("C")</strong></p>
+                        <p class="card-text">Status: @product.Status</p>
+                    }
+                </div>
+                <div class="card-footer">
+                    @if (product.Status == "Active" && product.ProductVariants.Any(v => v.Stock > 0))
+                    {
+                        <button class="btn btn-success w-100 add-to-cart" data-product-id="@product.Id" data-variant-id="@product.ProductVariants.First().Id">Add to Cart</button>
+                    }
+                    else if (product.Status == "Active")
+                    {
+                        <button class="btn btn-success w-100 add-to-cart" data-product-id="@product.Id" data-variant-id="0">Add to Cart</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary w-100" disabled>Not Available</button>
+                    }
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Pagination -->
+@if (Model.TotalProducts > Model.PageSize)
+{
+    <nav aria-label="Product pagination">
+        <ul class="pagination justify-content-center">
+            <li class="page-item @(Model.PageNumber == 1 ? "disabled" : "")">
+                <a class="page-link" href="#" onclick="setPage(@(Model.PageNumber - 1))">Previous</a>
+            </li>
+            @{
+                int totalPages = (int)Math.Ceiling((double)Model.TotalProducts / Model.PageSize);
+                for (int i = 1; i <= totalPages; i++)
+                {
+                    <li class="page-item @(i == Model.PageNumber ? "active" : "")">
+                        <a class="page-link" href="#" onclick="setPage(@i)">@i</a>
+                    </li>
+                }
+            }
+            <li class="page-item @(Model.PageNumber == totalPages ? "disabled" : "")">
+                <a class="page-link" href="#" onclick="setPage(@(Model.PageNumber + 1))">Next</a>
+            </li>
+        </ul>
+    </nav>
+}
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <script>
+        $(document).ready(function () {
+            $('select[name="categoryIds"]').select2({
+                placeholder: "Select Categories",
+                allowClear: true,
+                width: '100%'
+            });
+
+            $('#filterForm').on('change', 'select[name="sortOption"], select[name="categoryIds"]', function () {
+                $('#filterForm').submit();
+            });
+
+            $('.variant-select').on('change', function () {
+                var productId = $(this).data('product-id');
+                var selectedOption = $(this).find('option:selected');
+                var price = selectedOption.data('price');
+                var stock = selectedOption.data('stock');
+                var variantId = selectedOption.val();
+
+                $('.variant-price-' + productId).text(price);
+                $('.variant-stock-' + productId).text(stock);
+                $('.add-to-cart[data-product-id="' + productId + '"]').data('variant-id', variantId);
+            });
+
+            $('.add-to-cart').on('click', function () {
+                var productId = $(this).data('product-id');
+                var variantId = $(this).data('variant-id');
+
+                $.ajax({
+                    url: '@Url.Action("AddToCart", "Product")',
+                    type: 'POST',
+                    data: { productVariantId: variantId, quantity: 1 },
+                    headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (result) {
+                        if (result.success) {
+                            alert(result.message);
+                        } else {
+                            alert(result.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Error adding product to cart.');
+                    }
+                });
+            });
+        });
+
+        function setPage(page) {
+            $('input[name="pageNumber"]').val(page);
+            $('#filterForm').submit();
+        }
+    </script>
+}

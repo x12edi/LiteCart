@@ -2,11 +2,10 @@
 
 @{
     ViewData["Title"] = "Manage categorys";
-    Layout = "~/Views/Shared/_Layout.cshtml";
+    Layout = "~/Views/Shared/_AdminLayout.cshtml";
 }
 
 <div class="row">
-    <partial name="_SidebarPartial" />
     <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
         <h2>@ViewData["Title"]</h2>
         @if (TempData["SuccessMessage"] != null)

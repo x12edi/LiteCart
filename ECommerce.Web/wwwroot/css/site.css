@@ -1,4 +1,4 @@
-﻿.sidebar {
+﻿/*.sidebar {
     position: fixed;
     top: 0;
     bottom: 0;
@@ -15,4 +15,42 @@
     padding-top: .5rem;
     overflow-x: hidden;
     overflow-y: auto;
+}
+*/
+body {
+    padding-top: 0;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+.navbar-nav .nav-link {
+    font-size: 1.1rem;
+}
+
+.sidebar {
+    border-right: 1px solid #dee2e6;
+}
+
+    .sidebar .nav-link {
+        color: #333;
+    }
+
+        .sidebar .nav-link:hover {
+            background-color: #f1f1f1;
+        }
+
+.footer {
+    border-top: 1px solid #dee2e6;
+    margin-top: auto;
+}
+
+.alert-dismissible {
+    margin-bottom: 1rem;
 }
