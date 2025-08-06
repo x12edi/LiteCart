@@ -3,6 +3,7 @@ using ECommerce.Application.Services;
 using ECommerce.Web.Filters;
 using ECommerce.Web.Models;
 using Humanizer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
@@ -25,6 +26,7 @@ namespace ECommerce.Web.Controllers
             _productVariantService = productVariantService;
         }
 
+        [AllowAnonymous]
         public async Task<IActionResult> List(string searchQuery = "", string categoryIds = "", string sortOption = "Newest", int pageNumber = 1)
         {
             var model = new ProductListViewModel
@@ -107,7 +109,7 @@ namespace ECommerce.Web.Controllers
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        //[ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int productVariantId, int quantity = 1)
         {
             var userId = HttpContext.Session.GetInt32("UserId");
@@ -130,7 +132,8 @@ namespace ECommerce.Web.Controllers
 
             var cart = await _cartService.GetByUserIdOrSessionAsync(userId, string.Empty);
             if (cart == null)
-            { 
+            {
+                cart = new CartDto();
                 cart.UserId = userId;
                 cart.SessionId = HttpContext.Session.Id;
                 //cart.Items = new List<CartItemDto>();
@@ -146,7 +149,7 @@ namespace ECommerce.Web.Controllers
 
             //cart.Items.Append(cartItem);
 
-            //await _cartService.AddItemAsync(userId, cartItem);
+            await _cartService.AddItemAsync(cart, cartItem);
             return Json(new { success = true, message = "Product added to cart." });
         }
 

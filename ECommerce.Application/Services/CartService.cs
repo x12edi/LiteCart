@@ -100,7 +100,7 @@ namespace ECommerce.Application.Services
             };
         }
 
-        public async Task AddItemAsync(CartDto cart, AddCartItemDto dto)
+        public async Task AddItemAsync(CartDto cart, CartItemDto dto)
         {
             if (dto.Quantity <= 0)
                 throw new ArgumentException("Quantity must be positive.");
@@ -146,27 +146,36 @@ namespace ECommerce.Application.Services
         public async Task UpdateItemAsync(int cartId, int productVariantId, int quantity)
         {
             if (quantity <= 0)
-                throw new ArgumentException("Quantity must be positive.");
+                throw new System.ArgumentException("Quantity must be greater than zero.");
 
-            var cart = await _unitOfWork.Carts.GetByIdAsync(cartId);
-            if (cart == null)
-                throw new KeyNotFoundException("Cart not found.");
+            //using var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                var cart = await _unitOfWork.Carts.GetByIdAsync(cartId);
+                if (cart == null)
+                    throw new System.InvalidOperationException("Cart not found.");
 
-            var cartItem = await _unitOfWork.CartItems.GetByCartAndProductVariantIdAsync(cartId, productVariantId);
-            if (cartItem == null)
-                throw new KeyNotFoundException($"Cart item not found.");
+                var item = (await _unitOfWork.CartItems.GetByCartIdAsync(cart.Id))
+                    .FirstOrDefault(i => i.ProductVariantId == productVariantId);
+                if (item == null)
+                    throw new System.InvalidOperationException("Cart item not found.");
 
-            var variant = await _unitOfWork.ProductVariants.GetByIdAsync(productVariantId);
-            if (variant == null)
-                throw new KeyNotFoundException($"Product variant {productVariantId} not found.");
-            if (variant.Stock < quantity)
-                throw new InvalidOperationException($"Insufficient stock for product variant {productVariantId}.");
+                var variant = await _unitOfWork.ProductVariants.GetByIdAsync(productVariantId);
+                if (variant == null || variant.Stock < quantity)
+                    throw new System.InvalidOperationException("Insufficient stock.");
 
-            cartItem.Quantity = quantity;
-            cartItem.PriceAtTime = variant.Price;
-            await _unitOfWork.CartItems.UpdateAsync(cartItem);
-            await _unitOfWork.CompleteAsync();
+                item.Quantity = quantity;
+                await _unitOfWork.CartItems.UpdateAsync(item);
+                await _unitOfWork.CompleteAsync();
+                //await transaction.CommitAsync();
+            }
+            catch
+            {
+                //await transaction.RollbackAsync();
+                throw;
+            }
         }
+
 
         public async Task RemoveItemAsync(int cartId, int productVariantId)
         {

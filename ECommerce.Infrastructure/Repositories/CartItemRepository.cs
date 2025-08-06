@@ -5,7 +5,7 @@ using System.Data;
 
 namespace ECommerce.Infrastructure.Repositories
 {
-    public class CartItemRepository : IRepository<CartItem>
+    public class CartItemRepository : ICartItemRepository
     {
         private readonly string _connectionString;
 

@@ -7,7 +7,7 @@ namespace ECommerce.Application.Services
         Task<CartDto> GetByIdAsync(int id);
         Task<CartDto> GetByUserIdOrSessionAsync(int? userId, string sessionId);
         Task<CartDto> CreateAsync(CreateCartDto dto);
-        Task AddItemAsync(CartDto cart, AddCartItemDto dto);
+        Task AddItemAsync(CartDto cart, CartItemDto dto);
         Task UpdateItemAsync(int cartId, int productVariantId, int quantity);
         Task RemoveItemAsync(int cartId, int productVariantId);
         Task DeleteAsync(int id);

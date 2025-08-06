@@ -1,0 +1,129 @@
+﻿@model ECommerce.Web.Models.CartViewModel
+@{
+    ViewData["Title"] = "Shopping Cart";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div id="anti-forgery-token-container" style="display:none;">
+    @Html.AntiForgeryToken()
+</div>
+<div class="row mb-4">
+    <div class="col-12">
+        <h2>@ViewData["Title"]</h2>
+        @if (Model.Items.Any())
+        {
+            <div class="table-responsive">
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Product</th>
+                            <th>Variant</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Items)
+                        {
+                            <tr>
+                                <td>
+                                    @if (!string.IsNullOrEmpty(item.ImageBase64))
+                                    {
+                                        <img src="data:image/jpeg;base64,@item.ImageBase64" alt="@item.ProductName" style="width: 50px; height: 50px; object-fit: cover;" />
+                                    }
+                                    else
+                                    {
+                                        <img src="https://via.placeholder.com/50" alt="No Image" style="width: 50px; height: 50px; object-fit: cover;" />
+                                    }
+                                </td>
+                                <td>@item.ProductName</td>
+                                <td>@item.DisplayName</td>
+                                <td>@item.PriceAtTime.ToString("C")</td>
+                                <td>
+                                    <div class="input-group" style="width: 120px;">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity(@item.ProductVariantId, @item.Quantity - 1)">-</button>
+                                        <input type="number" class="form-control text-center" value="@item.Quantity" min="1" onchange="updateQuantity(@item.ProductVariantId, this.value)">
+                                        <button class="btn btn-outline-secondary" type="button" onclick="updateQuantity(@item.ProductVariantId, @item.Quantity + 1)">+</button>
+                                    </div>
+                                </td>
+                                <td>@item.Subtotal.ToString("C")</td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm" onclick="removeItem(@item.ProductVariantId)">Remove</button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr>
+                            <td colspan="5" class="text-end"><strong>Total:</strong></td>
+                            <td>@Model.TotalPrice.ToString("C")</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+            <div class="text-end">
+                <a asp-controller="Checkout" asp-action="Index" class="btn btn-primary">Proceed to Checkout</a>
+            </div>
+        }
+        else
+        {
+            <div class="alert alert-info text-center">
+                Your cart is empty. <a asp-controller="Product" asp-action="List" class="alert-link">Continue shopping</a>.
+            </div>
+        }
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+    <script>
+        function updateQuantity(productVariantId, quantity) {
+            if (quantity < 1) {
+                alert("Quantity must be at least 1.");
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("UpdateItem", "Cart")',
+                type: 'POST',
+                data: { productVariantId: productVariantId, quantity: quantity },
+                headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                success: function (result) {
+                    if (result.success) {
+                        location.reload();
+                    } else {
+                        alert(result.message);
+                    }
+                },
+                error: function () {
+                    alert('Error updating cart.');
+                }
+            });
+        }
+
+        function removeItem(productVariantId) {
+            if (confirm('Are you sure you want to remove this item?')) {
+                $.ajax({
+                    url: '@Url.Action("RemoveItem", "Cart")',
+                    type: 'POST',
+                    data: { productVariantId: productVariantId },
+                    headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (result) {
+                        if (result.success) {
+                            location.reload();
+                        } else {
+                            alert(result.message);
+                        }
+                    },
+                    error: function () {
+                        alert('Error removing item.');
+                    }
+                });
+            }
+        }
+    </script>
+}

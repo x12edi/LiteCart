@@ -1,7 +1,8 @@
 ﻿using ECommerce.Application.Services;
 using ECommerce.Web.Models;
-using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -19,6 +20,13 @@ namespace ECommerce.Web.Controllers
         public IActionResult Login()
         {
             return View(new LoginViewModel());
+        }
+
+        [HttpGet]
+        public IActionResult IsUserLoggedIn()
+        {
+            var userId = HttpContext.Session.GetInt32("UserId");
+            return Json(userId.HasValue);
         }
 
         [HttpPost]
@@ -54,15 +62,18 @@ namespace ECommerce.Web.Controllers
             //    return View(model);
             //}
 
+            HttpContext.Session.SetInt32("UserId", user.Id);
+            HttpContext.Session.SetString("Username", user.Username);
+
             var userRoles = await _userService.GetUserRolesAsync(user.Id);
             if (!userRoles.Any(ur => ur.RoleId == 1)) // Assume RoleId 1 is Admin
             {
-                model.ErrorMessage = "User is not an admin.";
-                return View(model);
+                //model.ErrorMessage = "User is not an admin.";
+                //return View(model);
+                return RedirectToAction("List", "Product");
             }
 
-            HttpContext.Session.SetInt32("UserId", user.Id);
-            HttpContext.Session.SetString("Username", user.Username);
+            
 
             TempData["WelcomeMessage"] = $"Welcome back, {user.Username}!";
 

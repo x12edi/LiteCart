@@ -16,7 +16,7 @@ namespace ECommerce.Infrastructure.Repositories
         private IProductVariantRepository _productVariants;
         private IInventoryRepository _inventories;
         private IRepository<User> _users;
-        private IRepository<Cart> _carts;
+        private ICartRepository _carts;
         private ICartItemRepository _cartItems;
         private IRepository<Order> _orders;
         private IRepository<OrderItem> _orderItems;
@@ -54,7 +54,7 @@ namespace ECommerce.Infrastructure.Repositories
         public IProductVariantRepository ProductVariants => _productVariants ??= new ProductVariantRepository(_connectionString);
         public IInventoryRepository Inventories => _inventories ??= (IInventoryRepository) new InventoryRepository(_connectionString);
         public IRepository<User> Users => _users ??= new UserRepository(_connectionString);
-        public IRepository<Cart> Carts => _carts ??= new CartRepository(_connectionString);
+        public ICartRepository Carts => _carts ??= (ICartRepository) new CartRepository(_connectionString);
         public ICartItemRepository CartItems => _cartItems ??= (ICartItemRepository) new CartItemRepository(_connectionString);
         public IRepository<Order> Orders => _orders ??= new OrderRepository(_connectionString);
         public IRepository<OrderItem> OrderItems => _orderItems ??= new OrderItemRepository(_connectionString);

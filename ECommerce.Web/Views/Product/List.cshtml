@@ -156,29 +156,45 @@
                 $('.add-to-cart[data-product-id="' + productId + '"]').data('variant-id', variantId);
             });
 
-            $('.add-to-cart').on('click', function () {
-                var productId = $(this).data('product-id');
-                var variantId = $(this).data('variant-id');
+            $('.add-to-cart').on('click', function ()
+            {
+            var productId = $(this).data('product-id');
+            var variantId = $(this).data('variant-id');
 
-                $.ajax({
-                    url: '@Url.Action("AddToCart", "Product")',
-                    type: 'POST',
-                    data: { productVariantId: variantId, quantity: 1 },
-                    headers: { 'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val() },
-                    success: function (result) {
-                        if (result.success) {
-                            alert(result.message);
-                        } else {
-                            alert(result.message);
-                        }
-                    },
-                    error: function () {
-                        alert('Error adding product to cart.');
+            // Check if the user is logged in
+            $.ajax({
+                url: '@Url.Action("IsUserLoggedIn", "Account")',
+                type: 'GET',
+                success: function (isLoggedIn) {
+                    if (isLoggedIn === true)
+                    {
+                        // Proceed to add to cart
+                        $.ajax({
+                            url: '@Url.Action("AddToCart", "Product")',
+                            type: 'POST',
+                            data: { productVariantId: variantId, quantity: 1 },
+                            // headers: {
+                            //     'RequestVerificationToken': $('input[name="__RequestVerificationToken"]').val()
+                            // },
+                            success: function (result) {
+                                alert(result.message);
+                            },
+                            error: function () {
+                                alert('Error adding product to cart.');
+                            }
+                        });
+                    } else {
+                        // Redirect to login page
+                        window.location.href = '@Url.Action("Login", "Account")';
                     }
-                });
+                },
+                error: function () {
+                    alert('Unable to verify login status.');
+                }
             });
         });
 
+        });
         function setPage(page) {
             $('input[name="pageNumber"]').val(page);
             $('#filterForm').submit();

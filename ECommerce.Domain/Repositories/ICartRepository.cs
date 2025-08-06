@@ -4,6 +4,6 @@ namespace ECommerce.Domain.Repositories
 {
     public interface ICartRepository : IRepository<Cart>
     {
-        
+        Task<Cart> GetByUserIdAsync(string userId);
     }
 }

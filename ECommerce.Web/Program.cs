@@ -73,7 +73,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Dashboard}/{action=Index}/{id?}");
+    pattern: "{controller=Product}/{action=List}/{id?}");
 //app.MapControllers(); // Maintain API support
 
 app.Run();
